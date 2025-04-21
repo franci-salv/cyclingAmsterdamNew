@@ -1,0 +1,8 @@
+1.  I need to understand json if i wanna keep building
+2. implement the logic for cycling wind direction rain etc. need to contrast eindhoven to amsterdam
+
+what logic???
+
+-I want starting point and end point that way even with high winds the cyclist is fine
+
+
