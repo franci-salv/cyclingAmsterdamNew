@@ -1,12 +1,17 @@
 import requests
 import json
+import math
+import numpy as np
+
+lat1 = 51.4416 #Eindhoven
+lon1 = 5.4697
+lat2 = 52.3676 #Amsterdam
+lon2 = 4.9041
 
 
-
-import requests
 
 def callAPI():
-    url = "https://api.tomorrow.io/v4/weather/realtime?location=austin&apikey=h75GN8Qsauua0KkdNNq2QJtvpOYFyTEn"
+    url = "https://api.tomorrow.io/v4/weather/realtime?location=atlanta&apikey=h75GN8Qsauua0KkdNNq2QJtvpOYFyTEn"
     headers = {
         "accept": "application/json",
         "accept-encoding": "deflate, gzip, br"
@@ -23,6 +28,52 @@ def callAPI():
     else:
         print(f"Error: {response.status_code} - {response.text}")
         return None
+    
+def findBearing(lat1, lon1, lat2, lon2):
+
+    # Convert from degrees to radians
+    phi1 = math.radians(lat1)
+    phi2 = math.radians(lat2)
+    delta_lambda = math.radians(lon2 - lon1)
+
+    x = math.sin(delta_lambda) * math.cos(phi2)
+    y = math.cos(phi1) * math.sin(phi2) - math.sin(phi1) * math.cos(phi2) * math.cos(delta_lambda)
+
+    theta = math.atan2(x, y)
+
+    # Convert from radians to degrees and normalize
+    bearing = (math.degrees(theta) + 360) % 360
+    return bearing
+
+bearingAngle = round(findBearing(lat1, lon1, lat2, lon2),2)
+print('bearing Angle', bearingAngle)
+
+def angle_to_vector(deg):
+
+    rad = math.radians(deg)
+    return [math.cos(rad), math.sin(rad)]
+
+def dotProduct(x,y):
+    dot = np.dot(x,y)
+    return dot
+
+
+def windDirectionCheck(bearingAngle, WindDirection):
+    bearingAngleVector = angle_to_vector(bearingAngle)
+    WindDirectionVector = angle_to_vector(WindDirection)
+
+    alignment = dotProduct(bearingAngleVector,WindDirectionVector)
+
+    if alignment > -0.1:
+        check = True
+    else:
+        check = False
+    return check
+
+
+
+
+
 
 
 try:
@@ -30,7 +81,13 @@ try:
 except requests.exceptions.RequestException as e:
     print(f"Request failed: {e}")
 
+if values['windDirection'] >=180:
+    WindDirection = values['windDirection']-180
+else:
+    WindDirection = values['windDirection']+180
 
+check = windDirectionCheck(bearingAngle,WindDirection)
+print('check', check)
 
 
 # Format it cleanly
@@ -43,9 +100,18 @@ print(f"🔍 Visibility: {values['visibility']} km")
 print(f"☁️ Cloud Base: {values['cloudBase']} km | Cloud Ceiling: {values['cloudCeiling']} km")
 print(f"🧪 Pressure: {values['pressureSeaLevel']} hPa (sea level)")
 
+
+conditionsOK = (values['cloudBase']> 1 and values['cloudCeiling']>0.5 and values['rainIntensity']<0.1 and values['sleetIntensity']< 0.1 and values['snowIntensity']< 0.1 and values['temperature']>2 and values['visibility']>2 and values['windSpeed']< 40)
+
 # Add logic to say whether it's good for cycling:
-if  values['cloudBase']> 1 and values['cloudCeiling']>0.5 and values['rainIntensity']<0.1 and values['sleetIntensity']< 0.1 and values['snowIntensity']< 0.1 and values['temperature']>2 and values['visibility']>3 and values['windSpeed']< 40: #direction need to be added
-    print("\nToday is a great day to cycle")
+if  conditionsOK:
+    if check == False and values['windSpeed']<10:
+        print('\n Today is a great day to cycle')
+    elif check == True:
+        print("\nToday is a great day to cycle")
+    else:
+        print("\nits jover dont go out")
+
 else:
     print("\nits jover dont go out")
 
