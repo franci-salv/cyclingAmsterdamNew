@@ -2,24 +2,33 @@ import requests
 import json
 
 
-url = "https://api.tomorrow.io/v4/weather/realtime?location=amsterdam&apikey=h75GN8Qsauua0KkdNNq2QJtvpOYFyTEn"
+
+import requests
+
+def callAPI():
+    url = "https://api.tomorrow.io/v4/weather/realtime?location=austin&apikey=h75GN8Qsauua0KkdNNq2QJtvpOYFyTEn"
+    headers = {
+        "accept": "application/json",
+        "accept-encoding": "deflate, gzip, br"
+    }
+
+    response = requests.get(url, headers=headers)
+
+    # Check for a successful response
+    if response.status_code == 200:
+        data = response.json()
+        values = data["data"]["values"]
+        print(values)  # Or return values if you're using this elsewhere
+        return values
+    else:
+        print(f"Error: {response.status_code} - {response.text}")
+        return None
 
 
-
-headers = {
-    "accept": "application/json",
-    "accept-encoding": "deflate, gzip, br"
-}
-
-response = requests.get(url, headers=headers)
-
-print(response.text)
-
-
-# Sample API response (replace this with your actual `response.json()`)
-data = response.json()
-
-values = data["data"]["values"]
+try:
+    values = callAPI()
+except requests.exceptions.RequestException as e:
+    print(f"Request failed: {e}")
 
 
 
@@ -35,9 +44,9 @@ print(f"☁️ Cloud Base: {values['cloudBase']} km | Cloud Ceiling: {values['cl
 print(f"🧪 Pressure: {values['pressureSeaLevel']} hPa (sea level)")
 
 # Add logic to say whether it's good for cycling:
-if  values['rainIntensity'] > 0.25 or values['precipitationProbability'] > 50:
-    print("\n🚫 Not ideal for cycling today. Stay cozy 😕")
+if  values['cloudBase']> 1 and values['cloudCeiling']>0.5 and values['rainIntensity']<0.1 and values['sleetIntensity']< 0.1 and values['snowIntensity']< 0.1 and values['temperature']>2 and values['visibility']>3 and values['windSpeed']< 40: #direction need to be added
+    print("\nToday is a great day to cycle")
 else:
-    print("\n✅ Great day to cycle! Go enjoy the ride 🚴‍♂️")
+    print("\nits jover dont go out")
 
 
