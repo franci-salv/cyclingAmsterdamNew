@@ -2,6 +2,8 @@ import requests
 import json
 import math
 import numpy as np
+import csv
+from cityFinder import load_city_coords
 
 lat1 = 51.4416 #Eindhoven
 lon1 = 5.4697
@@ -10,8 +12,19 @@ lon2 = 4.9041
 
 
 
-def callAPI():
-    url = "https://api.tomorrow.io/v4/weather/realtime?location=atlanta&apikey=h75GN8Qsauua0KkdNNq2QJtvpOYFyTEn"
+user_input = input("Enter a city: ").strip().lower()
+coords = load_city_coords(user_input)
+
+if coords:
+    lat, lon = coords
+    # ✅ Plug lat/lon into your weather API call
+    url = "https://api.tomorrow.io/v4/weather/realtime?location=",coords,"&apikey=h75GN8Qsauua0KkdNNq2QJtvpOYFyTEn"
+    # Continue with your weather + cycling logic
+else:
+    print("City not found.")
+
+
+def callAPI(url):
     headers = {
         "accept": "application/json",
         "accept-encoding": "deflate, gzip, br"
@@ -101,7 +114,7 @@ print(f"☁️ Cloud Base: {values['cloudBase']} km | Cloud Ceiling: {values['cl
 print(f"🧪 Pressure: {values['pressureSeaLevel']} hPa (sea level)")
 
 
-conditionsOK = (values['cloudBase']> 1 and values['cloudCeiling']>0.5 and values['rainIntensity']<0.1 and values['sleetIntensity']< 0.1 and values['snowIntensity']< 0.1 and values['temperature']>2 and values['visibility']>2 and values['windSpeed']< 40)
+conditionsOK =     (values['cloudBase'] is None or values['cloudBase'] > 1) and (values['cloudCeiling'] is None or values['cloudCeiling'] > 0.5) and  (values['rainIntensity'] is None or values['rainIntensity'] < 0.1) and (values['sleetIntensity'] is None or values['sleetIntensity'] < 0.1) and  (values['snowIntensity'] is None or values['snowIntensity'] < 0.1) and (values['temperature'] is None or values['temperature'] > 2) and (values['visibility'] is None or values['visibility'] > 2) and (values['windSpeed'] is None or values['windSpeed'] < 40)
 
 # Add logic to say whether it's good for cycling:
 if  conditionsOK:
