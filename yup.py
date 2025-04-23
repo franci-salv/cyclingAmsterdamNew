@@ -11,6 +11,19 @@ lat2 = 52.3676 #Amsterdam
 lon2 = 4.9041
 
 
+filepath = r"C:\Users\franc\OneDrive\Bureaublad\Newer Beginnings\Amsterdam Cycling baby\worldcities.csv"
+
+city_coords = load_city_coords(filepath)
+
+user_input = input("Enter a city: ").strip().lower()
+
+if user_input in city_coords:
+    lat, lon = city_coords[user_input]
+else:
+    print("City not found.")
+    exit()
+
+
 
 user_input = input("Enter a city: ").strip().lower()
 coords = load_city_coords(user_input)
