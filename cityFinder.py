@@ -13,7 +13,7 @@ def load_city_coords(filepath):
 
 # Test manually
 if __name__ == "__main__":
-    filepath = r"...\worldcities.csv"  # Put your correct path here
+    filepath = "worldcities.csv"  # Put your correct path here
     cities = load_city_coords(filepath)
 
     user_input = input("Enter a city: ").strip().lower()

@@ -4,7 +4,7 @@ import numpy as np
 import csv
 from cityFinder import load_city_coords
 
-filepath = r"C:\Users\franc\OneDrive\Bureaublad\Newer Beginnings\Amsterdam Cycling baby\worldcities.csv"
+filepath = "worldcities.csv"
 city_coords = load_city_coords(filepath)
 
 def findUserCoords(user_input):
