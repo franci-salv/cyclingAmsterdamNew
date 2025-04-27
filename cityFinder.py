@@ -17,14 +17,6 @@ def load_city_coords(filepath):
 
 cities = load_city_coords(filepath)
 
-user_input = input("Enter a city: ").strip().lower()
-
-if user_input in cities:
-    lat, lon = cities[user_input]
-    print(f"Coordinates for {user_input.title()}: {lat}, {lon}")
-else:
-    print("City not found.")
-
 #because it should fix my code I don't know
 if __name__ == "__main__":
     cities = load_city_coords(filepath)

@@ -5,36 +5,34 @@ import numpy as np
 import csv
 from cityFinder import load_city_coords
 
-lat1 = 51.4416 #Eindhoven
-lon1 = 5.4697
-lat2 = 52.3676 #Amsterdam
-lon2 = 4.9041
+
 
 
 filepath = r"C:\Users\franc\OneDrive\Bureaublad\Newer Beginnings\Amsterdam Cycling baby\worldcities.csv"
 
 city_coords = load_city_coords(filepath)
 
-user_input = input("Enter a city: ").strip().lower()
+user_input1 = input("Enter a city: ").strip().lower()
+user_input2 = input("Enter a city: ").strip().lower()
 
-if user_input in city_coords:
-    lat, lon = city_coords[user_input]
-else:
-    print("City not found.")
-    exit()
+def findUserCoords(user_input):
+    if user_input in city_coords:
+        lat, lon = city_coords[user_input]
+        url = f"https://api.tomorrow.io/v4/weather/realtime?location={lat},{lon}&apikey=h75GN8Qsauua0KkdNNq2QJtvpOYFyTEn"
+        return lat, lon, url
+    else:
+        print("City not found.")
+        exit()
+
+
+lat1,lon1,urlStart = findUserCoords(user_input1)
+lat2,lon2,urlEnd = findUserCoords(user_input2)
 
 
 
-user_input = input("Enter a city: ").strip().lower()
-coords = load_city_coords(user_input)
+print(user_input1,'has latitude', lat1,lon1)
+print(user_input2,'has latitude', lat2,lon2)
 
-if coords:
-    lat, lon = coords
-    # ✅ Plug lat/lon into your weather API call
-    url = "https://api.tomorrow.io/v4/weather/realtime?location=",coords,"&apikey=h75GN8Qsauua0KkdNNq2QJtvpOYFyTEn"
-    # Continue with your weather + cycling logic
-else:
-    print("City not found.")
 
 
 def callAPI(url):
@@ -103,7 +101,11 @@ def windDirectionCheck(bearingAngle, WindDirection):
 
 
 try:
-    values = callAPI()
+    values = callAPI(urlStart)
+except requests.exceptions.RequestException as e:
+    print(f"Request failed: {e}")
+try:
+    values = callAPI(urlEnd)
 except requests.exceptions.RequestException as e:
     print(f"Request failed: {e}")
 
@@ -112,7 +114,7 @@ if values['windDirection'] >=180:
 else:
     WindDirection = values['windDirection']+180
 
-check = windDirectionCheck(bearingAngle,WindDirection)
+check = windDirectionCheck(bearingAngle,WindDirection) 
 print('check', check)
 
 
@@ -127,7 +129,7 @@ print(f"☁️ Cloud Base: {values['cloudBase']} km | Cloud Ceiling: {values['cl
 print(f"🧪 Pressure: {values['pressureSeaLevel']} hPa (sea level)")
 
 
-conditionsOK =     (values['cloudBase'] is None or values['cloudBase'] > 1) and (values['cloudCeiling'] is None or values['cloudCeiling'] > 0.5) and  (values['rainIntensity'] is None or values['rainIntensity'] < 0.1) and (values['sleetIntensity'] is None or values['sleetIntensity'] < 0.1) and  (values['snowIntensity'] is None or values['snowIntensity'] < 0.1) and (values['temperature'] is None or values['temperature'] > 2) and (values['visibility'] is None or values['visibility'] > 2) and (values['windSpeed'] is None or values['windSpeed'] < 40)
+conditionsOK =  (values['cloudBase'] is None or values['cloudBase'] > 1) and (values['cloudCeiling'] is None or values['cloudCeiling'] > 0.5) and  (values['rainIntensity'] is None or values['rainIntensity'] < 0.1) and (values['sleetIntensity'] is None or values['sleetIntensity'] < 0.1) and  (values['snowIntensity'] is None or values['snowIntensity'] < 0.1) and (values['temperature'] is None or values['temperature'] > 2) and (values['visibility'] is None or values['visibility'] > 2) and (values['windSpeed'] is None or values['windSpeed'] < 40)
 
 # Add logic to say whether it's good for cycling:
 if  conditionsOK:
@@ -140,5 +142,7 @@ if  conditionsOK:
 
 else:
     print("\nits jover dont go out")
+
+
 
 
